@@ -67,7 +67,7 @@ def recieveData(ser):
         x = ser.readline(LINE_LENGTH)
         if x:
             first_line = toBytes(x)
-            data_len = first_line[0]
+            data_len = int(first_line[0], 16)
             data_len -= len(first_line) + 1 # len doesn't include len byte
             data.append(first_line)
             break
@@ -186,5 +186,5 @@ ser = serial.Serial(
 
 
 #sendCommand(ser, 0x35, [2, 0x2, 0x4, 0x0, 0x12, 0x0])
-sendCommand(ser, 0x36, []) #Gets work mode
+#sendCommand(ser, 0x36, []) #Gets work mode
 #sendCommand(ser, 0x21, [])
