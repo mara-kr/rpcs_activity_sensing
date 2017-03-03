@@ -1,13 +1,16 @@
 #! /usr/bin/env python
 
-# TODO
+# TODO Check CRCs coming back
+# TODO assume that each packet is 17 bytes
+# TODO just read data off the sensor
+# TODO maybe increase scan time? Will it overflow the buffer
 #
 # LEN(1), ADDR(1), COMMAND(1), DATA(var), CRCLSB(1), CRCMSB(1)
 # Neil Ryan <nryan@andrew.cmu.edu>
 
 import serial
 
-LINE_LENGTH = 18
+LINE_LENGTH = 17
 
 # Perform a CRC on data (an array of integers)
 def crc(data):
@@ -111,10 +114,18 @@ def setPower(ser, power_level):
     printData(data)
 
 # Get the work mode parameter of the reader
-def getWorkMode(ser):
+def getReaderInfo(ser):
     sendCommand(ser, 0x21, [])
     data = recieveData(ser)
     printData(data)
+
+
+# Get the work mode parameter of the reader
+def getWorkMode(ser):
+    sendCommand(ser, 0x36, [])
+    data = recieveData(ser)
+    printData(data)
+
 
 # Set the address that the reader will listen at
 def setAddress(ser, address):
@@ -163,6 +174,13 @@ def inventorySignal(ser):
     printData(data)
 
 
+
+def setBaudRate(ser, rate):
+    sendCommand(ser, 0x28, [rate])
+    data = recieveData(ser)
+    printData(data)
+
+
 # Inventory tags in effective field and get ID values
 # condition: Condition of detecting tags
 # addr: Tag's start address to compare
@@ -175,9 +193,15 @@ def inventoryMultiple(ser, condition, addr, mask, wordData):
     printData(data)
 
 
+def read(ser, data):
+    sendCommand(ser, 0x2, data)
+    data = recieveData(ser)
+    printData(data)
+
+
 ser = serial.Serial(
     port='/dev/ttyUSB0',
-    baudrate='57600',
+    baudrate='115200',
     parity=serial.PARITY_NONE,
     stopbits=serial.STOPBITS_ONE,
     bytesize=serial.EIGHTBITS,
