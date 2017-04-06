@@ -60,14 +60,24 @@ def sendCommand(ser, command, data):
 
 # Recieves data from a serial connection
 # ser: Serial connection (serial.Serial)
-# num_lines: number of lines to recieve
-def recieveData(ser, num_lines):
+def recieveData(ser):
     data = []
-    while num_lines > 0:
+    # Get first line (so we know length)
+    while 1:
         x = ser.readline(LINE_LENGTH)
         if x:
-            data.append(toBytes(x))
-            num_lines -= 1
+            first_line = toBytes(x)
+            data_len = first_line[0]
+            data_len -= len(first_line) + 1 # len doesn't include len byte
+            data.append(first_line)
+            break
+    # Get the rest of the data
+    while data_len > 0:
+        x = ser.readline(LINE_LENGTH)
+        if x:
+            line = toBytes(x)
+            data_len -= len(line)
+            data.append(line)
     return flatten(data)
 
 
@@ -76,7 +86,7 @@ def recieveData(ser, num_lines):
 def printData(data):
     assert(len(data) >= 6) # Len, Adr, reCmd, Status, CRCLSB, CRCMSB
     data_len = len(data) - 4
-    print("Length: {}".format(int(data[0], 16))
+    print("Length: {}".format(int(data[0], 16)))
     print("Address: 0x{}".format(data[1]))
     print("Response Command {}".format(data[2]))
     print("Status: 0x{}".format(data[3]))
@@ -95,27 +105,27 @@ def printData(data):
 
 # Sets the power level of the reader
 def setPower(ser, power_level):
-    assert(power_level >= 0 && power_level <= 30)
+    assert(power_level >= 0 and power_level <= 30)
     sendCommand(ser, 0x2f, [power_level])
-    data = recieveData(ser, 1)
+    data = recieveData(ser)
     printData(data)
 
 # Get the work mode parameter of the reader
 def getWorkMode(ser):
     sendCommand(ser, 0x21, [])
-    data = recieveData(ser, 2)
+    data = recieveData(ser)
     printData(data)
 
 # Set the address that the reader will listen at
 def setAddress(ser, address):
     sendCommand(ser, 0x24, [address])
-    data = recieveData(ser, 1)
+    data = recieveData(ser)
     printData(data)
 
 # Set the InventoryScanTime of the reader
 def setScanTime(ser, scan_time):
     sendCommand(ser, 0x25, [scan_time])
-    data = recieveData(ser, 1)
+    data = recieveData(ser)
     printData(data)
 
 # Set the LED light flash/buzzer tweet
@@ -124,7 +134,7 @@ def setScanTime(ser, scan_time):
 # times: LED flash and buzzer tweet times
 def acoustoOpticControl(ser, activeT, silentT, times):
     sendCommand(ser, 0x33, [activeT, silentT, times])
-    data = recieveData(ser, 1)
+    data = recieveData(ser)
     printData(data)
 
 
@@ -134,14 +144,14 @@ def setWorkMode(ser, read_mode, mode_state, mem_inven,
     sendCommand(ser, 0x35,
             [read_mode, mode_state, mem_inven,
                 first_adr, word_num, tag_time])
-    data = recieveData(ser, 2)
+    data = recieveData(ser)
     printData(data)
 
 
 # Get the reader information
 def getWorkCommand(ser):
     sendCommand(ser, 0x36, [])
-    data = recieveData(ser, 2)
+    data = recieveData(ser)
     printData(data)
 
 
@@ -149,7 +159,7 @@ def getWorkCommand(ser):
 # If >1 tag in range, reader may get nothing
 def inventorySignal(ser):
     sendCommand(ser, 0x50, [])
-    data = recieveData(ser, 1)
+    data = recieveData(ser)
     printData(data)
 
 
@@ -161,7 +171,7 @@ def inventorySignal(ser):
 def inventoryMultiple(ser, condition, addr, mask, wordData):
     wdata = flatten([condition, addr, mask, wordData])
     sendCommand(ser, 0x51, wdata)
-    data = recieveData(ser, 5) # TODO Need to check based on length
+    data = recieveData(ser)
     printData(data)
 
 
