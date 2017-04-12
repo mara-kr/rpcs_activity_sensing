@@ -7,6 +7,7 @@
 import serial
 import sys
 import argparse
+import datetime
 
 LINE_LENGTH = 18
 PORT='/dev/ttyUSB0'
@@ -64,7 +65,7 @@ def printData(data, verbose):
     crc_data.pop(-1)
     crc_data.pop(-1)
     crc_val = crc(crc_data)
-    data_len = len(data) - 4 
+    data_len = len(data) - 4
     if (verbose):
         print("Length: {}".format(int(data[0], 16)))
         print("Address: 0x{}".format(data[1]))
@@ -74,7 +75,7 @@ def printData(data, verbose):
     s = ""
     num_bytes = 0
     for i in xrange(4, data_len - 2):
-        s += "0x{} ".format(data[i])
+        s += "{}".format(data[i])
         num_bytes += 1
 
     if (verbose):
@@ -83,6 +84,14 @@ def printData(data, verbose):
             hex(crc_val)))
     else:
         print(s)
+
+
+def getId(data):
+    tagId = ""
+    # Id doesn't include header (4 bytes) or CRC (2 bytes)
+    for i in xrange(4, len(data) - 2):
+        tagId += "{}".format(data[i])
+    return tagId
 
 
 ser = serial.Serial(
@@ -101,8 +110,12 @@ parser.add_argument('-v' , '--verbose', dest='verbose',
         help="Print data packet headers and CRC check")
 args = parser.parse_args()
 
+seen = []
 
 while(1):
-    printData(recieve(ser), args.verbose)
+    tagId = getId(recieve(ser))
     if (args.verbose):
         print("")
+    if (tagId not in seen):
+        seen.append(tagId)
+        print("{} {}".format(tagId, datetime.datetime.now()))
