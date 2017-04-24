@@ -1,8 +1,11 @@
-#we get data from Matt
-
 
 #open file in json and parse
+import json
 
+entry_ts = dict()
+
+with open('data.text') as json_data:
+    entry_ts = json.load(json_data)
 
 #conflict resolutions
 
