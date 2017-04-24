@@ -8,6 +8,9 @@ import serial
 import sys
 import argparse
 import datetime
+import socket
+import fcntl
+import struct
 
 LINE_LENGTH = 18
 PORT='/dev/ttyUSB0'
@@ -129,6 +132,16 @@ def minsPassed(time1, time2):
 def secondsPassed(time1, time2):
     return abs(float((time1 - time2).total_seconds())) 
 
+# gets IP address - code from stackoverflow
+def getIpAddress(ifname):
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    return socket.inet_ntoa(fcntl.ioctl(
+        s.fileno(),
+        0x8915,  # SIOCGIFADDR
+        struct.pack('256s', ifname[:15])
+    )[20:24])
+
+
 # entries that are sent to master Pi
 entry_ts = []
 
@@ -142,7 +155,8 @@ while(1):
     time_now = datetime.datetime.now()
     new_tag = Tag(tagID, time_now, time_now)
     
-    # STILL NEED TO SET THE READER ID! 
+    # TEST THIS CODE
+    readerID = getIpAddress('eth0')
     
     if readerID not in readerDict:
         readerDict[readerID] = [new_tag]
