@@ -110,12 +110,86 @@ parser.add_argument('-v' , '--verbose', dest='verbose',
         help="Print data packet headers and CRC check")
 args = parser.parse_args()
 
-seen = []
+# SLAVE PI CODE - CHECKS WHICH TAG IS AT AS STATION
+
+class Tag:
+    def __init__(self, tagID, first_seen, last_seen, has_entered = False):
+        self.tagID = tagID
+        self.first_seen = first_seen
+        self.last_seen = last_seen
+        self.has_entered = has_entered # 0 is not set, 1 is entering
+
+
+# returns the minutes passed
+def minsPassed(time1, time2):
+    return secondsPassed(time1, time2) / 60
+
+
+# returns the seconds passed
+def secondsPassed(time1, time2):
+    return abs(float((time1 - time2).total_seconds())) 
+
+# entries that are sent to master Pi
+entry_ts = []
+
+# dictionary that will hold all readers and tags seen
+readerDict = dict()
 
 while(1):
-    tagId = getId(recieve(ser))
-    if (args.verbose):
-        print("")
-    if (tagId not in seen):
-        seen.append(tagId)
-        print("{} {}".format(tagId, datetime.datetime.now()))
+    tagID = getId(recieve(ser))
+    if (args.verbose): print("")
+    
+    time_now = datetime.datetime.now()
+    new_tag = Tag(tagID, time_now, time_now)
+    
+    # STILL NEED TO SET THE READER ID! 
+    
+    if readerID not in readerDict:
+        readerDict[readerID] = [new_tag]
+
+    else:
+        tag_seen = False
+        for seen_tag in readerDict[readerID]:
+            # Tag has already been seen
+            if new_tag.tagID == seen_tag.tagID: 
+                tag_seen = True
+
+                # If the tag has been seen for over a minute and is constantly being seen
+                # Checking to see if a minute has passed filters accidental readings 
+                if (minsPassed(seen_tag.first_seen, new_tag.first_seen) >= 1 and 
+                   secondsPassed(seen_tag.last_seen, new_tag.first_seen) <= 10):
+
+                    # The tag is first entering the station
+                    if (seen_tag.action != True):
+                        seen_tag.action = True
+                        entry = '{} {} {}'.format(str(seen_tag.tagID), 1, str(seen_tag.first_seen.replace(microsecond=0)).replace(" ", "_"))
+                        entry_ts.append(entry)
+                                                  
+                    # Update the last seen time 
+                    seen_tag.last_seen = new_tag.first_seen
+                    break
+
+                # Update the last seen time
+                seen_tag.last_seen = new_tag.first_seen
+
+        # Tag has not been seen
+        if not tag_seen:
+            readerDict[readerID].append(new_tag)
+
+
+    # checking for tags that have left the station
+    for reader in readerDict:
+        for seen_tag in readerDict[reader]:
+            time_now = datetime.datetime.now()
+
+            # remove tags that have not been seen in a minute 
+            if minsPassed(seen_tag.last_seen, time_now) >= 1:
+
+                entry = '{} {} {}'.format(str(seen_tag.tagID), 0, str(seen_tag.last_seen.replace(microsecond=0)).replace(" ", "_"))
+                entry_ts.append(entry)
+                readerDict[reader].remove(seen_tag)
+
+#     if (tagId not in seen):
+#         seen.append(tagId)
+#         print("{} {}".format(tagId, datetime.datetime.now()))
+
