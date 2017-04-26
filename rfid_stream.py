@@ -170,6 +170,7 @@ while(1):
 
                 # If the tag has been seen for over a minute and is constantly being seen
                 # Checking to see if a minute has passed filters accidental readings 
+<<<<<<< HEAD
                 if (minsPassed(seen_tag.first_seen, new_tag.first_seen) >= 1 and
                         not seen_tag.has_entered):
                         seen_tag.has_entered = True
