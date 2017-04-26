@@ -155,8 +155,7 @@ while(1):
     time_now = datetime.datetime.now()
     new_tag = Tag(tagID, time_now, time_now)
     
-    # TEST THIS CODE
-    readerID = getIpAddress('eth0')
+    readerID = getIpAddress('wlan0')
     
     if readerID not in readerDict:
         readerDict[readerID] = [new_tag]
@@ -166,25 +165,23 @@ while(1):
         for seen_tag in readerDict[readerID]:
             # Tag has already been seen
             if new_tag.tagID == seen_tag.tagID: 
+                print(seen_tag.first_seen)
                 tag_seen = True
 
                 # If the tag has been seen for over a minute and is constantly being seen
                 # Checking to see if a minute has passed filters accidental readings 
-                if (minsPassed(seen_tag.first_seen, new_tag.first_seen) >= 1 and 
-                   secondsPassed(seen_tag.last_seen, new_tag.first_seen) <= 10):
-
-                    # The tag is first entering the station
-                    if (seen_tag.action != True):
-                        seen_tag.action = True
-                        entry = '{} {} {} {}'.format(str(seen_tag.tagID), str(readerID), 1, str(seen_tag.first_seen.replace(microsecond=0)).replace(" ", "_"))
+                if (minsPassed(seen_tag.first_seen, new_tag.first_seen) >= 1 and
+                        not seen_tag.has_entered):
+                        seen_tag.has_entered = True
+                        entry = '{} {} {} {}'.format(str(seen_tag.tagID),
+                                str(readerID), 1, 
+                                str(seen_tag.first_seen.replace(microsecond=0)).replace(" ", "_"))
+                        print(entry)
                         entry_ts.append(entry)
                                                   
-                    # Update the last seen time 
-                    seen_tag.last_seen = new_tag.first_seen
-                    break
-
-                # Update the last seen time
-                seen_tag.last_seen = new_tag.first_seen
+                        # Update the last seen time 
+                        seen_tag.last_seen = new_tag.first_seen
+                        break
 
         # Tag has not been seen
         if not tag_seen:
@@ -200,6 +197,7 @@ while(1):
             if minsPassed(seen_tag.last_seen, time_now) >= 1:
 
                 entry = '{} {} {} {}'.format(str(seen_tag.tagID), str(readerID), 0, str(seen_tag.last_seen.replace(microsecond=0)).replace(" ", "_"))
+                print(entry)
                 entry_ts.append(entry)
                 readerDict[reader].remove(seen_tag)
 
