@@ -156,7 +156,7 @@ while(1):
     new_tag = Tag(tagID, time_now, time_now)
     
     # TEST THIS CODE
-    readerID = getIpAddress('eth0')
+    readerID = getIpAddress('wlan0')
     
     if readerID not in readerDict:
         readerDict[readerID] = [new_tag]
@@ -176,7 +176,7 @@ while(1):
                     # The tag is first entering the station
                     if (seen_tag.action != True):
                         seen_tag.action = True
-                        entry = '{} {} {} {}'.format(str(seen_tag.tagID), str(readerID), 1, str(seen_tag.first_seen.replace(microsecond=0)).replace(" ", "_"))
+                        entry = '{} {} {} {}\n'.format(str(seen_tag.tagID), str(readerID), 1, str(seen_tag.first_seen.replace(microsecond=0)).replace(" ", "_"))
                         entry_ts.append(entry)
                                                   
                     # Update the last seen time 
@@ -199,7 +199,7 @@ while(1):
             # remove tags that have not been seen in a minute 
             if minsPassed(seen_tag.last_seen, time_now) >= 1:
 
-                entry = '{} {} {} {}'.format(str(seen_tag.tagID), str(readerID), 0, str(seen_tag.last_seen.replace(microsecond=0)).replace(" ", "_"))
+                entry = '{} {} {} {}\n'.format(str(seen_tag.tagID), str(readerID), 0, str(seen_tag.last_seen.replace(microsecond=0)).replace(" ", "_"))
                 entry_ts.append(entry)
                 readerDict[reader].remove(seen_tag)
 
