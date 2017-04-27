@@ -25,7 +25,7 @@ class DataLine:
         self.entering = data[3]
 
     def __lt__(self, other):
-        if isinstance(self, other):
+        if isinstance(other, DataLine):
             return self.datetime < other.datetime
         else:
             return False
@@ -39,7 +39,7 @@ class DataFile:
     def __init__(self, fname):
         self.fname = DATA_FILE_DIR + fname
         self.handler = open(self.fname, 'r')
-        self.last_line = self.handler.readline()
+        self.last_line = DataLine(self.handler.readline())
 
     def newline(self):
         line = self.handler.readline()
@@ -52,12 +52,13 @@ class DataFile:
 # Sort the data from multiple files by timestamp
 # Map reduce with one node - probably shouldn't be in python
 def createCompoundFile():
-    out_f = open(COMPOUND_DATA_FILE, 'w')
     data_files = []
     data_fnames = os.listdir(DATA_FILE_DIR)
 
     for fname in data_fnames:
         data_files.append(DataFile(fname))
+
+    out_f = open(COMPOUND_DATA_FILE, 'w')
 
     while (len(data_files) > 0):
         min_line = data_files[0].last_line
