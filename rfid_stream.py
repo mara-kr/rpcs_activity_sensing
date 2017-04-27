@@ -13,8 +13,11 @@ import struct
 LINE_LENGTH = 18
 PORT='/dev/ttyUSB0'
 BAUDRATE='115200'
-T_THRESH=60 # Time threshold to register entering/leaving
+T_THRESH=10 # Time threshold to register entering/leaving
 
+
+class SerialReadException(Exception):
+    pass
 
 # Takes a string read from serial, translates to array of data bytes
 def toBytes(data):
@@ -36,6 +39,8 @@ def recieve(ser):
         x = ser.read(LINE_LENGTH)
         if x:
             return toBytes(x)
+        else:
+            raise SerialReadException
 
 
 def getId(data):
@@ -74,6 +79,18 @@ def getIpAddress(ifname):
     )[20:24])
 
 
+# checking for tags that have left the station
+def cleanupTags(tags, entry_ts, time_now):
+    for seen_tag in tags:
+        # remove tags that have not been seen in a minute
+        if secsPassed(seen_tag.last_seen, time_now) >= T_THRESH:
+            entry = getEntry(readerID, seen_tag.ID,
+                    seen_tag.last_seen, 0);
+            print(entry)
+            entry_ts.append(entry)
+            tags.remove(seen_tag)
+
+
 ser = serial.Serial(
     port=PORT,
     baudrate=BAUDRATE,
@@ -86,48 +103,45 @@ ser = serial.Serial(
 # entries that are sent to master Pi
 entry_ts = []
 
-readerID = getIpAddress('wlan0')
+# ID is the IP address without any .'s
+readerID = "".join(getIpAddress('wlan0').split('.'))
 
 # List of tags that we currently care about (in range)
 trackedTags = []
 
 while(1):
-    tagID = getId(recieve(ser))
-
     time_now = datetime.datetime.now()
+    try:
+        data = recieve(ser)
+        tagID = getId(data)
+    except SerialReadException:
+        cleanupTags(trackedTags, entry_ts, time_now)
+        continue
+
     new_tag = Tag(tagID, time_now, time_now)
 
     tag_seen = False
     for seen_tag in trackedTags:
         # Tag has already been seen
         if new_tag.ID == seen_tag.ID:
-            print(new_tag.ID, str(seen_tag.first_seen), str(time_now))
             tag_seen = True
 
             # If we've been seeing tag for a while, regsiter entering
             if (secsPassed(seen_tag.first_seen, time_now) >= T_THRESH and
-                    not seen_tag.has_entered):
-                    seen_tag.has_entered = True
-                    entry = getEntry(readerID, seen_tag.ID,
-                            seen_tag.first_seen, 1);
-                    print(entry)
-                    entry_ts.append(entry)
+                not seen_tag.has_entered):
+                seen_tag.has_entered = True
+                entry = getEntry(readerID, seen_tag.ID,
+                        seen_tag.first_seen, 1);
+                print(entry)
+                entry_ts.append(entry)
 
-                    # Update the last seen time
-                    seen_tag.last_seen = new_tag.first_seen
-                    break
+                break
+
+            # Update the last seen time
+            seen_tag.last_seen = time_now
 
     # Tag has not been seen
     if not tag_seen:
         trackedTags.append(new_tag)
 
-
-    # checking for tags that have left the station
-    for seen_tag in trackedTags:
-        # remove tags that have not been seen in a minute
-        if secsPassed(seen_tag.last_seen, time_now) >= T_THRESH:
-            entry = getEntry(readerID, seen_tag.ID,
-                    seen_tag.last_seen, 0);
-            print(entry)
-            entry_ts.append(entry)
-            trackedTags.remove(seen_tag)
+    cleanupTags(trackedTags, entry_ts, time_now)
