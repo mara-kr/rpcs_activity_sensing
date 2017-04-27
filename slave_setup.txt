@@ -7,3 +7,4 @@ on master:
     cat id_rsa.pub >> ~/.ssh/authorized_keys
 
 Set Timezone to US eastern
+-sudo dpkg-reconfigure tzdata
