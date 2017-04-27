@@ -1,5 +1,6 @@
 LEFT TODO:
--Check master algorithm
+-Cron job for master pi to run at midnight
+-Slaves should run rfid_stream.py at boot
 
 BONUS:
 -script to setup slave raspi & start script
