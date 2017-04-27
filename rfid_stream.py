@@ -20,6 +20,7 @@ BAUDRATE='115200'
 T_THRESH=10 # Time threshold to register entering/leaving
 TIME_9PM = datetime.time(21,0)
 TIME_6AM = datetime.time(6,0)
+TIME_FORMAT = "%m/%d/%Y %H:%M:%S"
 
 DATA_FILE = "datafile.csv"
 MASTER = "pi@{}:/home/pi/data/{}.csv" # TODO get master IP address
@@ -73,7 +74,7 @@ def secsPassed(time1, time2):
 
 
 def getEntry(readerID, tagID, time, entering):
-    time = time.strftime("%m/%d/%Y %H:%M:%S")
+    time = time.strftime(TIME_FORMAT)
     return "{},{},{},{}\n".format(readerID, tagID, time, entering);
 
 
