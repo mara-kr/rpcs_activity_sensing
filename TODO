@@ -1,11 +1,5 @@
 LEFT TODO:
--Setup folders on master
--Check if SCP works on self (for master) - should work
-    - if not, change SCP to CP if master IP matches node IP
--Setup SSH keys to scp without auth
--Verify that send at time only sends once
--Verify that clear sent at time works
-
+-Check master algorithm
 
 BONUS:
 -script to setup slave raspi & start script

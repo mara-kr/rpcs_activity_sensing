@@ -1,0 +1,4 @@
+SETTING UP MASTER NODE:
+-Assign a static IP, put in rfid_stream.py script for slaves
+-Set time to US EST
+-mkdir -p /home/pi/data

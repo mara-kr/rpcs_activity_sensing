@@ -1,0 +1,9 @@
+SETTING UP A NEW RASPBERRY PI AS A SLAVE:
+
+SCP keygen:
+    ssh-keygen -t rsa (press enter through prompts)
+    copy ~/.ssh/id_rsa.pub to master server
+on master:
+    cat id_rsa.pub >> ~/.ssh/authorized_keys
+
+Set Timezone to US eastern

@@ -18,8 +18,8 @@ LINE_LENGTH = 18
 PORT='/dev/ttyUSB0'
 BAUDRATE='115200'
 T_THRESH=10 # Time threshold to register entering/leaving
-TIME_9PM = datetime.time(21,0)
-TIME_6AM = datetime.time(6,0)
+SEND_TIME = datetime.time(15,10)  # 9PM
+CLEAR_TIME = datetime.time(6,0)
 TIME_FORMAT = "%m/%d/%Y %H:%M:%S"
 
 DATA_FILE = "datafile.csv"
@@ -96,6 +96,7 @@ def cleanupTags(tags, entry_ts, time_now):
             entry = getEntry(readerID, seen_tag.ID,
                     seen_tag.last_seen, 0);
             data_f.write(entry)
+            print(entry)
             tags.remove(seen_tag)
 
 
@@ -103,8 +104,8 @@ def sendToServer(readerID):
     global data_f
     data_f.close()
     remote = MASTER.format(readerID)
-    os.system("scp {} {}".format(DATA_FILE,MASTER))
-    os.system("rm {}".format(DATA_FILE))
+    os.system("scp {} {}".format(DATA_FILE,remote))
+    os.remove(DATA_FILE)
     data_f = open(DATA_FILE, 'w')
 
 
@@ -125,10 +126,11 @@ data_f = open(DATA_FILE, 'w')
 
 while(1):
     time_now = datetime.datetime.now()
-    if (sentToday and time_now.time() < TIME_6PM):
+    if (sentToday and time_now.time() < CLEAR_TIME):
         sentToday = 0
-    if (not sentToday and time_now.time() > TIME_9PM):
+    if (not sentToday and time_now.time() > SEND_TIME):
         sendToServer(readerID)
+        sentToday = 1
     try:
         data = recieve(ser)
         tagID = getId(data)
@@ -151,6 +153,7 @@ while(1):
                 entry = getEntry(readerID, seen_tag.ID,
                         seen_tag.first_seen, 1);
                 data_f.write(entry)
+                print(entry)
 
                 break
 
