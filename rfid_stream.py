@@ -3,7 +3,11 @@
 # Reads data from the RFID reads at 115200 Baud, from /dev/ttyUSB0
 #
 # Neil Ryan <nryan@andrew.cmu.edu>
+#
+# TODO: Get master server path
+#       Setup SSH keygen so that we don't need to SCP
 
+import os
 import serial
 import datetime
 import socket
@@ -14,7 +18,11 @@ LINE_LENGTH = 18
 PORT='/dev/ttyUSB0'
 BAUDRATE='115200'
 T_THRESH=10 # Time threshold to register entering/leaving
+TIME_9PM = datetime.time(21,0)
+TIME_6AM = datetime.time(6,0)
 
+DATA_FILE = "datafile.csv"
+MASTER = "pi@{}:/home/pi/data/{}.csv" # TODO get master IP address
 
 class SerialReadException(Exception):
     pass
@@ -86,9 +94,17 @@ def cleanupTags(tags, entry_ts, time_now):
         if secsPassed(seen_tag.last_seen, time_now) >= T_THRESH:
             entry = getEntry(readerID, seen_tag.ID,
                     seen_tag.last_seen, 0);
-            print(entry)
-            entry_ts.append(entry)
+            data_f.write(entry)
             tags.remove(seen_tag)
+
+
+def sendToServer(readerID):
+    global data_f
+    data_f.close()
+    remote = MASTER.format(readerID)
+    os.system("scp {} {}".format(DATA_FILE,MASTER))
+    os.system("rm {}".format(DATA_FILE))
+    data_f = open(DATA_FILE, 'w')
 
 
 ser = serial.Serial(
@@ -100,17 +116,18 @@ ser = serial.Serial(
     timeout=1
 )
 
-# entries that are sent to master Pi
-entry_ts = []
-
-# ID is the IP address without any .'s
-readerID = "".join(getIpAddress('wlan0').split('.'))
-
-# List of tags that we currently care about (in range)
-trackedTags = []
+sentToday = 0 # Whether this slave has sent to the server today
+entry_ts = [] # entries that are sent to master Pi
+readerID = "".join(getIpAddress('wlan0').split('.')) #IP addr w/o .'s
+trackedTags = [] # List of tags that we currently care about (in range)
+data_f = open(DATA_FILE, 'w')
 
 while(1):
     time_now = datetime.datetime.now()
+    if (sentToday and time_now.time() < TIME_6PM):
+        sentToday = 0
+    if (not sentToday and time_now.time() > TIME_9PM):
+        sendToServer(readerID)
     try:
         data = recieve(ser)
         tagID = getId(data)
@@ -132,8 +149,7 @@ while(1):
                 seen_tag.has_entered = True
                 entry = getEntry(readerID, seen_tag.ID,
                         seen_tag.first_seen, 1);
-                print(entry)
-                entry_ts.append(entry)
+                data_f.write(entry)
 
                 break
 
@@ -144,4 +160,4 @@ while(1):
     if not tag_seen:
         trackedTags.append(new_tag)
 
-    cleanupTags(trackedTags, entry_ts, time_now)
+    cleanupTags(trackedTags, data_f, time_now)
