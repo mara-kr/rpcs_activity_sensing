@@ -23,7 +23,7 @@ TIME_6AM = datetime.time(6,0)
 TIME_FORMAT = "%m/%d/%Y %H:%M:%S"
 
 DATA_FILE = "datafile.csv"
-MASTER = "pi@{}:/home/pi/data/{}.csv" # TODO get master IP address
+MASTER = "pi@128.237.255.92:/home/pi/data/{}.csv"
 
 class SerialReadException(Exception):
     pass
