@@ -1,0 +1,17 @@
+LEFT TODO:
+-Setup folders on master
+-Check if SCP works on self (for master)
+    - if not, change SCP to CP if master IP matches node IP
+-Setup SSH keys to scp without auth
+-Change master script to sort from all files & save to new file
+-Add code to do conflict detection by reading from new file
+-Add code to clear out directory on master
+-Verify that send at time only sends once
+-Verify that clear sent at time works
+
+
+BONUS:
+-script to setup slave raspi & start script
+-script to setup master raspi
+-script to setup readers (set mode, then baud rate at end)
+
