@@ -11,7 +11,9 @@ COMPOUND_DATA_FILE = DATA_FILE_DIR + "master_compound.csv"
 FILTERED_DATA_FILE = DATA_FILE_DIR + "master_filtered.csv"
 TIME_FORMAT = "%m/%d/%Y %H:%M:%S"
 TIME_THRESHOLD = 5  # Seconds between TODO, have entering/leaing
+COUNT_SEND_THRESHOLD = 10
 POST_URL = "http://128.237.197.65:3000/sensors/reeive"
+POST_HEADERS = {'content-type': 'text/csv'}
 
 
 class DataLine:
@@ -111,8 +113,21 @@ if __name__ == "__main__":
     filterCompoundFile()
 
     # Send the data to the server
-    f = open(FILTERED_DATA_FILE, 'rb')
-    r = requests.post(POST_URL, files={'filtered_data.csv': f})
+    f = open(FILTERED_DATA_FILE, 'r')
+    count = 0;
+    data = ""
+    for line in f:
+        data += line
+        count += 1
+        if (count == COUNT_SEND_THRESHOLD):
+            r = requests.post(POST_URL, data = data, headers=POST_HEADERS)
+            count = 0
+            data = ""
+
+    # Send the rest if we haven't sent all of it
+    if (len(data) > 0):
+        r = requests.post(POST_URL, files={'filtered_data.csv': f})
+
     f.close()
     #os.remove(FILTERED_DATA_FILE)
     #os.remove(COMPOUND_DATA_FILE)
