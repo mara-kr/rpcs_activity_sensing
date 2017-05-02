@@ -1,4 +1,10 @@
-f = open('/home/pi/data/master_filtered.csv', 'r')
+import sys
+
+if (len(sys.argv) < 2):
+    print("Provide a file to simplify")
+    sys.exit(0)
+
+f = open(sys.argv[1], 'r')
 
 seen_tags = dict()
 seen_readers = dict()

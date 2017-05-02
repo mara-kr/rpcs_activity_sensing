@@ -8,3 +8,6 @@ on master:
 
 Set Timezone to US eastern
 -sudo dpkg-reconfigure tzdata
+
+Resync time:
+sudo sntp -s 24.56.178.140

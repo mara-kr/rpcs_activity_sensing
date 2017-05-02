@@ -18,7 +18,7 @@ LINE_LENGTH = 18
 PORT='/dev/ttyUSB0'
 BAUDRATE='115200'
 T_THRESH=10 # Time threshold to register entering/leaving
-END_TIME = datetime.time(15,10)  # TODO: change back to 9PM
+END_TIME = datetime.time(16,30)  # TODO: change back to 9PM
 CLEAR_TIME = datetime.time(6,0)
 TIME_FORMAT = "%m/%d/%Y %H:%M:%S"
 
@@ -93,11 +93,12 @@ def cleanupTags(tags, entry_ts, time_now):
     for seen_tag in tags:
         # remove tags that have not been seen in a minute
         if secsPassed(seen_tag.last_seen, time_now) >= T_THRESH:
-            entry = getEntry(readerID, seen_tag.ID,
-                    seen_tag.last_seen, 0);
-            data_f.write(entry)
-            print(entry)
-            tags.remove(seen_tag)
+            if seen_tag.has_entered:
+                entry = getEntry(readerID, seen_tag.ID,
+                        seen_tag.last_seen, 0);
+                data_f.write(entry)
+                print(entry)
+                tags.remove(seen_tag)
 
 
 def sendToServer(readerID):

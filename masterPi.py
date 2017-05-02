@@ -109,6 +109,8 @@ def filterCompoundFile():
 
 
 if __name__ == "__main__":
+    os.remove(FILTERED_DATA_FILE)
+    os.remove(COMPOUND_DATA_FILE)
     createCompoundFile()
     filterCompoundFile()
 
@@ -120,13 +122,15 @@ if __name__ == "__main__":
         data += line
         count += 1
         if (count == COUNT_SEND_THRESHOLD):
-            r = requests.post(POST_URL, data = data, headers=POST_HEADERS)
+            # TODO uncomment
+            #r = requests.post(POST_URL, data = data, headers=POST_HEADERS)
             count = 0
             data = ""
 
     # Send the rest if we haven't sent all of it
-    if (len(data) > 0):
-        r = requests.post(POST_URL, files={'filtered_data.csv': f})
+    # TODO uncomment
+    #if (len(data) > 0):
+    #    r = requests.post(POST_URL, files={'filtered_data.csv': f})
 
     f.close()
     #os.remove(FILTERED_DATA_FILE)
