@@ -93,7 +93,8 @@ def filterCompoundFile():
         for seen_line in history_buffer:
             # Check for tag match in buffer - if so, remove both
             if (seen_line.tagID == curr_line.tagID and
-                    seen_line.readerID != curr_line.readerID):
+                    seen_line.readerID != curr_line.readerID and
+                    seen_line.entering == curr_line.entering):
                 history_buffer.remove(seen_line)
                 continue
             tdiff = curr_line.datetime - seen_line.datetime
@@ -109,8 +110,8 @@ def filterCompoundFile():
 
 
 if __name__ == "__main__":
-    os.remove(FILTERED_DATA_FILE)
-    os.remove(COMPOUND_DATA_FILE)
+    #os.remove(FILTERED_DATA_FILE)
+    #os.remove(COMPOUND_DATA_FILE)
     createCompoundFile()
     filterCompoundFile()
 
