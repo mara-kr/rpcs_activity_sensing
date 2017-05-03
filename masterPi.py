@@ -19,7 +19,6 @@ POST_HEADERS = {'content-type': 'text/csv'}
 class DataLine:
     def __init__(self, line):
         data = line.strip().split(',')
-        assert(len(data) == 4)
         self.readerID = data[0]
         self.tagID = data[1]
         self.time = data[2]
@@ -37,7 +36,7 @@ class DataLine:
             status_str = "true"
         else:
             status_str = "false"
-        return "{},{};{};{};{}\n".format(self.readerID, self.time,
+        ret5urn "{},{};{};{};{}\n".format(self.readerID, self.time,
                 self.tagID, status_str, "activity_sensing")
 
 
@@ -131,7 +130,7 @@ if __name__ == "__main__":
     filterCompoundFile()
 
     # Send the data to the server
-    f = open(COMPOUND_DATA_FILE, 'r')
+    f = open(FILTERED_DATA_FILE, 'r')
     count = 0;
     data = ""
     for line in f:
