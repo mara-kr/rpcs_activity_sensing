@@ -10,7 +10,7 @@
 
 import serial
 
-LINE_LENGTH = 17
+LINE_LENGTH = 18
 
 # Perform a CRC on data (an array of integers)
 def crc(data):
@@ -70,8 +70,10 @@ def recieveData(ser):
         x = ser.readline(LINE_LENGTH)
         if x:
             first_line = toBytes(x)
+            print(first_line)
             data_len = int(first_line[0], 16)
             data_len -= len(first_line) + 1 # len doesn't include len byte
+            print("len = {}".format(data_len))
             data.append(first_line)
             break
     # Get the rest of the data
@@ -81,7 +83,14 @@ def recieveData(ser):
             line = toBytes(x)
             data_len -= len(line)
             data.append(line)
-    return flatten(data)
+    data = flatten(data)
+    crc_data = data[1:-2]
+    for i in xrange(len(crc_data)):
+        crc_data[i] = int(crc_data[i], 16)
+    data_crc = crc(crc_data)
+    print(hex(data_crc))
+
+    return data
 
 
 # Prints response data with some formatting
@@ -205,10 +214,10 @@ ser = serial.Serial(
     parity=serial.PARITY_NONE,
     stopbits=serial.STOPBITS_ONE,
     bytesize=serial.EIGHTBITS,
-    timeout=1
+    timeout=0
 )
 
-
+getReaderInfo(ser)
 #sendCommand(ser, 0x35, [2, 0x2, 0x4, 0x0, 0x12, 0x0])
 #sendCommand(ser, 0x36, []) #Gets work mode
 #sendCommand(ser, 0x21, [])

@@ -18,12 +18,12 @@ LINE_LENGTH = 18
 PORT='/dev/ttyUSB0'
 BAUDRATE='115200'
 T_THRESH=10 # Time threshold to register entering/leaving
-END_TIME = datetime.time(16,30)  # TODO: change back to 9PM
+SEND_TIME = datetime.time(16,33)  # TODO: change back to 9PM
 CLEAR_TIME = datetime.time(6,0)
 TIME_FORMAT = "%m/%d/%Y %H:%M:%S"
 
 DATA_FILE = "datafile.csv"
-MASTER = "pi@128.237.255.92:/home/pi/data/{}.csv"
+MASTER = "pi@128.237.238.200:/home/pi/data/{}.csv"
 
 class SerialReadException(Exception):
     pass
