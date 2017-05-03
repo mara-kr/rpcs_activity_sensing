@@ -12,7 +12,7 @@ FILTERED_DATA_FILE = DATA_FILE_DIR + "master_filtered.csv"
 TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 TIME_THRESHOLD = 5  # Seconds between TODO, have entering/leaing
 COUNT_SEND_THRESHOLD = 10
-POST_URL = "http://128.237.197.65:3000/sensors/reeive"
+POST_URL = "http://128.237.190.206:3000/sensors/reeive"
 POST_HEADERS = {'content-type': 'text/csv'}
 
 
@@ -21,8 +21,8 @@ class DataLine:
         data = line.strip().split(';')
         print(data)
         self.readerID = data[0]
-        self.tagID = data[1]
-        self.time = data[2]
+        self.tagID = data[2]
+        self.time = data[1]
         self.datetime = datetime.datetime.strptime(self.time, TIME_FORMAT)
         self.entering = data[3]
 
