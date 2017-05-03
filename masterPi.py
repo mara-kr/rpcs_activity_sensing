@@ -86,16 +86,23 @@ def filterCompoundFile():
 
     # Store buffer of data that's within the time range
     history_buffer = []
+    # Track whether there was a conflict with the current line
+    no_conflict = True
+    remove_lines = []
 
     # Conflict detection
     for line in data_f:
         curr_line = DataLine(line)
+        no_conflict = True
+        remove_lines = []
         for seen_line in history_buffer:
             # Check for tag match in buffer - if so, remove both
             if (seen_line.tagID == curr_line.tagID and
                     seen_line.readerID != curr_line.readerID and
                     seen_line.entering == curr_line.entering):
-                history_buffer.remove(seen_line)
+                # Append lines to remove so we don't remove while traversing
+                remove_lines.append(seen_line)
+                no_conflict = False
                 continue
             tdiff = curr_line.datetime - seen_line.datetime
             tdiff = int(tdiff.total_seconds())
@@ -103,9 +110,15 @@ def filterCompoundFile():
             if (tdiff > TIME_THRESHOLD):
                 out_f.write(str(seen_line))
                 history_buffer.remove(seen_line)
-        history_buffer.append(curr_line)
+        for line in remove_lines:
+            history_buffer.remove(line)
+        if (no_conflict):
+            history_buffer.append(curr_line)
 
     data_f.close()
+    # Write remaining lines
+    for line in history_buffer:
+        out_f.write(str(line))
     out_f.close()
 
 
