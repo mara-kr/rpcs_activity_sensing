@@ -9,7 +9,7 @@ import requests
 DATA_FILE_DIR = "/home/pi/data/"
 COMPOUND_DATA_FILE = DATA_FILE_DIR + "master_compound.csv"
 FILTERED_DATA_FILE = DATA_FILE_DIR + "master_filtered.csv"
-TIME_FORMAT = "%m/%d/%Y %H:%M:%S"
+TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 TIME_THRESHOLD = 5  # Seconds between TODO, have entering/leaing
 COUNT_SEND_THRESHOLD = 10
 POST_URL = "http://128.237.197.65:3000/sensors/reeive"
@@ -33,8 +33,12 @@ class DataLine:
             return False
 
     def __str__(self):
-        return "{},{},{},{}\n".format(self.readerID, self.tagID,
-            self.time, self.entering)
+        if (self.entering):
+            status_str = "true"
+        else:
+            status_str = "false"
+        return "{},{};{};{};{}\n".format(self.readerID, self.time,
+                self.tagID, status_str, "activity_sensing")
 
 
 class DataFile:
