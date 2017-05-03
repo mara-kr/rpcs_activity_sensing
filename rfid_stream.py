@@ -18,7 +18,7 @@ LINE_LENGTH = 18
 PORT='/dev/ttyUSB0'
 BAUDRATE='115200'
 T_THRESH=10 # Time threshold to register entering/leaving
-SEND_TIME = datetime.time(14,28)  # TODO: change back to 9PM
+SEND_TIME = datetime.time(14,29)  # TODO: change back to 9PM
 CLEAR_TIME = datetime.time(6,0)
 TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
@@ -75,7 +75,7 @@ def secsPassed(time1, time2):
 
 def getEntry(readerID, tagID, time, entering):
     time = time.strftime(TIME_FORMAT)
-    if (self.entering):
+    if (entering):
         status_str = "true"
     else:
         status_str = "false"
