@@ -75,7 +75,12 @@ def secsPassed(time1, time2):
 
 def getEntry(readerID, tagID, time, entering):
     time = time.strftime(TIME_FORMAT)
-    return "{},{},{},{}\n".format(readerID, tagID, time, entering);
+    if (entering):
+        status_str = "true"
+    else:
+        status_str = "false"
+    return "{};{};{};{};{}\n".format(readerID, time,
+            tagID, status_str, "activity_sensing")
 
 
 # gets IP address - code from stackoverflow

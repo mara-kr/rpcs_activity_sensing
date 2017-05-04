@@ -12,16 +12,17 @@ FILTERED_DATA_FILE = DATA_FILE_DIR + "master_filtered.csv"
 TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 TIME_THRESHOLD = 5  # Seconds between TODO, have entering/leaing
 COUNT_SEND_THRESHOLD = 10
-POST_URL = "http://128.237.197.65:3000/sensors/reeive"
+POST_URL = "http://128.237.190.206:3000/sensors/reeive"
 POST_HEADERS = {'content-type': 'text/csv'}
 
 
 class DataLine:
     def __init__(self, line):
-        data = line.strip().split(',')
+        data = line.strip().split(';')
+        print(data)
         self.readerID = data[0]
-        self.tagID = data[1]
-        self.time = data[2]
+        self.tagID = data[2]
+        self.time = data[1]
         self.datetime = datetime.datetime.strptime(self.time, TIME_FORMAT)
         self.entering = data[3]
 
@@ -32,11 +33,11 @@ class DataLine:
             return False
 
     def __str__(self):
-        if (self.entering):
+        if (self.entering == 'true'):
             status_str = "true"
         else:
             status_str = "false"
-        return "{},{};{};{};{}\n".format(self.readerID, self.time,
+        return "{};{};{};{};{}\n".format(self.readerID, self.time,
                 self.tagID, status_str, "activity_sensing")
 
 
@@ -44,12 +45,14 @@ class DataFile:
     def __init__(self, fname):
         self.fname = DATA_FILE_DIR + fname
         self.handler = open(self.fname, 'r')
+        print(self.fname)
         self.last_line = DataLine(self.handler.readline())
 
     def newline(self):
         line = self.handler.readline()
         if (len(line) == 0):
             return line
+        print(self.fname)
         self.last_line = DataLine(line)
         return line
 
@@ -61,7 +64,8 @@ def createCompoundFile():
     data_fnames = os.listdir(DATA_FILE_DIR)
 
     for fname in data_fnames:
-        data_files.append(DataFile(fname))
+        if ('master' not in fname):
+            data_files.append(DataFile(fname))
 
     out_f = open(COMPOUND_DATA_FILE, 'w')
 
