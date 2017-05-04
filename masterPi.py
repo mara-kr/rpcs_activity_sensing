@@ -36,7 +36,7 @@ class DataLine:
             status_str = "true"
         else:
             status_str = "false"
-        ret5urn "{},{};{};{};{}\n".format(self.readerID, self.time,
+        return "{},{};{};{};{}\n".format(self.readerID, self.time,
                 self.tagID, status_str, "activity_sensing")
 
 
@@ -76,7 +76,7 @@ def createCompoundFile():
         out_f.write(str(min_line))
         if len(data_files[min_i].newline()) == 0:  # File is empty
             data_files[min_i].handler.close()
-            #os.remove(data_files[min_i].fname)  # Cleanup file
+            os.remove(data_files[min_i].fname)  # Cleanup file
             data_files.pop(min_i)
 
     out_f.close()  # Flush writes to disk
@@ -146,5 +146,5 @@ if __name__ == "__main__":
         r = requests.post(POST_URL, files={'filtered_data.csv': f})
 
     f.close()
-    #os.remove(FILTERED_DATA_FILE)
-    #os.remove(COMPOUND_DATA_FILE)
+    os.remove(FILTERED_DATA_FILE)
+    os.remove(COMPOUND_DATA_FILE)

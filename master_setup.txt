@@ -1,7 +1,5 @@
 SETTING UP MASTER NODE:
 -Assign a static IP, put in rfid_stream.py script for slaves
--Set time to US EST
+-Set time to US EST on the Pi - `sudo dpkg-reconfigure tzdata`
+-Run `sudo sntp -s 24.56.178.140` to sync time over NTP
 -mkdir -p /home/pi/data
-
-sudo sntp -s 24.56.178.140
-

@@ -18,8 +18,8 @@ LINE_LENGTH = 18
 PORT='/dev/ttyUSB0'
 BAUDRATE='115200'
 T_THRESH=10 # Time threshold to register entering/leaving
-SEND_TIME = datetime.time(14,15)  # TODO: change back to 9PM
-CLEAR_TIME = datetime.time(6,0)
+SEND_TIME = datetime.time(21, 0) # 9PM
+CLEAR_TIME = datetime.time(6,0) # 6AM
 TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 DATA_FILE = "datafile.csv"

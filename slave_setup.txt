@@ -1,6 +1,6 @@
 SETTING UP A NEW RASPBERRY PI AS A SLAVE:
 
-SCP keygen:
+##### SCP keygen #####
     ssh-keygen -t rsa (press enter through prompts)
     copy ~/.ssh/id_rsa.pub to master server
 on master:
@@ -10,4 +10,4 @@ Set Timezone to US eastern
 -sudo dpkg-reconfigure tzdata
 
 Resync time:
-sudo sntp -s 24.56.178.140
+-sudo sntp -s 24.56.178.140
