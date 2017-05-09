@@ -57,3 +57,22 @@ On the master, a cron job needs to be setup to run `python masterPi.py` at midni
 every day.
 
 For debugging, it's helpful to remove the `os.remove` calls in `masterPi.py` so that intermediate output can be seen.
+
+
+## Contributions
+rfid_stream.py:
+    Neil Ryan               <nryan@andrew.cmu.edu>
+    Paola Aguilar           <apa@andrew.cmu.edu>
+    Aditi Chalisgaonkar     <achalisg@andrew.cmu.edu>
+
+masterPi.py:
+    Neil Ryan               <nryan@andrew.cmu.edu>
+    Matthew Harding         <mharding@andrew.cmu.edu>
+
+rfid_config.py:
+    Neil Ryan               <nryan@andrew.cmu.edu>
+    Vishnu Razdan           <vrazdan@andrew.cmu.edu>
+
+All other code and documentation done by Neil Ryan.
+Refactoring, debugging, and integration done by Neil Ryan.
+
